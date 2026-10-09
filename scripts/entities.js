@@ -87,7 +87,7 @@ export const drawBehaviour = {
 };
 
 export const enemyBehaviour = {
-    player: null,
+    eplayer: null,
     pathfinding: false,
     viewRangeSquared: (7 * 64) * (7 * 64),
     speed: 0.5,
@@ -101,23 +101,23 @@ export const enemyBehaviour = {
         let dy = (this.y || 0) - player.y;
         let distSquared = (dx * dx) + (dy * dy);
         if (distSquared > this.viewRangeSquared) return;
-        this.player = player;
+        this.eplayer = player;
     },
 
     move(dt) {
-        if (!this.player) return;
-        let dx = (this.x || 0) - this.player.x;
-        let dy = (this.y || 0) - this.player.y;
+        if (!this.eplayer) return;
+        let dx = (this.x || 0) - this.eplayer.x;
+        let dy = (this.y || 0) - this.eplayer.y;
         let distSquared = (dx * dx) + (dy * dy);
         if (distSquared > this.viewRangeSquared) {
-            this.player = null;
+            this.eplayer = null;
             return;
         };
         let magnitude = Math.sqrt(distSquared);
         let canSee = true;
         if (this.castRay) {
-            let ray = this.castRay(-dx, -dy, Infinity);
-            canSee = (ray !== null && ray[0] === this.player);
+            let ray = this.castRay(-dx, -dy, Infinity, ["eplayer", "collectable",]);
+            canSee = (ray !== null && ray[0] === this.eplayer);
         };
         if (!canSee) {
             return;
@@ -163,7 +163,7 @@ export const objBehaviour = {
         if (this.move) this.move(dt);
         if (this.updatePos) this.updatePos();
         if (this.draw) this.draw();
-        if (this.findPlayer && !this.player) {
+        if (this.findPlayer && !this.eplayer) {
             this.findPlayer();
         };
         if (this.follow && this.parentObj) this.follow();
@@ -269,7 +269,7 @@ export const playableBehaviour = {
 };
 
 export const rayBehaviour = {
-    castRay(dirX, dirY, rayLength) {
+    castRay(dirX, dirY, rayLength, exProperties) {
         let lenSq = (dirX * dirX) + (dirY * dirY);
         if (lenSq == 0) return null;
         let len = Math.sqrt(lenSq);
@@ -292,6 +292,8 @@ export const rayBehaviour = {
 
         for (const obj of Game.objects) {
             if (obj === this) continue;
+
+            if (exProperties.some(p => obj[p])) continue;
 
             let corners = [[obj.x, obj.y], [obj.x + obj.width, obj.y], [obj.x + obj.width, obj.y + obj.height], [obj.x, obj.y + obj.height]];
 
