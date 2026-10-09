@@ -1,0 +1,10 @@
+body {
+    margin: 0;
+    background-color: rgb(17, 17, 26);
+    color: white;
+    text-transform: uppercase;
+}
+
+canvas {
+    background-color: aliceblue;
+}
