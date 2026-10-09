@@ -68,7 +68,8 @@ function drawBackground() {
     };
 };
 
-let spawnTime = 6;
+let cspawnTime = 6;
+let espawnTime = 10;
 
 function loop() {
     Game.ctx.clearRect(0, 0, Game.canvas.width, Game.canvas.height);
@@ -81,10 +82,16 @@ function loop() {
         if (obj.update) obj.update(dt);
     };
 
-    spawnTime -= dt;
-    if (spawnTime <= 0) {
-        spawnTime = 6;
+    cspawnTime -= dt;
+    if (cspawnTime <= 0) {
+        cspawnTime = 6;
         createEntity(Game.cam_pos[0] + ((Math.random() - 0.5) * 5 * 64), Game.cam_pos[1] + ((Math.random() - 0.5) * 5 * 64), 64, 64, "images/placeholder.png", [collectableBehaviour], []);
+    };
+
+    espawnTime -= dt;
+    if (espawnTime <= 0) {
+        espawnTime = 10;
+        createEntity(Game.cam_pos[0] + ((Math.random() - 0.5) * 5 * 64), Game.cam_pos[1] + ((Math.random() - 0.5) * 5 * 64), 64, 64, "images/placeholder.png", [physicsBehaviour, enemyBehaviour, rayBehaviour], [["solid", true], ["physics", true], ["pathfinding", true]])
     };
 
     lt = ct;
