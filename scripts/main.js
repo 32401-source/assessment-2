@@ -68,6 +68,8 @@ function drawBackground() {
     };
 };
 
+let spawnTime = 6;
+
 function loop() {
     Game.ctx.clearRect(0, 0, Game.canvas.width, Game.canvas.height);
     let ct = performance.now();
@@ -77,6 +79,12 @@ function loop() {
 
     for (const obj of Game.objects) {
         if (obj.update) obj.update(dt);
+    };
+
+    spawnTime -= dt;
+    if (spawnTime <= 0) {
+        spawnTime = 6;
+        createEntity(Game.cam_pos[0] + ((Math.random() - 0.5) * 5 * 64), Game.cam_pos[1] + ((Math.random() - 0.5) * 5 * 64), 64, 64, "images/placeholder.png", [collectableBehaviour], []);
     };
 
     lt = ct;
