@@ -18,7 +18,7 @@ const levels = [
             {x: 0, y: 1, width: 5, height: 1, image: "images/placeholder.png", behaviours: [], attributes: [["solid", true]]},
             {x: -1, y: -2, width: 1, height: 4, image: "images/placeholder.png", behaviours: [], attributes: [["solid", true]]},
             {x: -2, y: 0, width: 1, height: 1, image: "images/placeholder.png", behaviours: [physicsBehaviour, enemyBehaviour, rayBehaviour], attributes: [["solid", true], ["physics", true], ["pathfinding", true]]},
-            {x: 5, y: 0, width: 1, height: 1, image: "images/placeholder.png", behaviours: [physicsBehaviour, collectableBehaviour], attributes: []},
+            {x: 5, y: 0, width: 1, height: 1, image: "images/apple.png", behaviours: [physicsBehaviour, collectableBehaviour], attributes: []},
         ],
     },
 ];
@@ -29,7 +29,7 @@ function loadLevel(lvl) {
         createEntity(e.x * 64, e.y * 64, e.width * 64, e.height * 64, e.image, e.behaviours, e.attributes);
     };
 
-    createEntity(level.start[0], level.start[1], 64, 64, "images/placeholder.png", [playableBehaviour], [["physics", true], ["solid", true], ["moveStyle", "constant"], ["friction", false], ["speed", 5]]);
+    createEntity(level.start[0], level.start[1], 64, 64, "images/snake.png", [playableBehaviour], [["physics", true], ["solid", true], ["moveStyle", "constant"], ["friction", false], ["speed", 5]]);
 };
 
 loadLevel(0);
@@ -85,7 +85,7 @@ function loop() {
     cspawnTime -= dt;
     if (cspawnTime <= 0) {
         cspawnTime = 6;
-        createEntity(Game.cam_pos[0] + ((Math.random() - 0.5) * 5 * 64), Game.cam_pos[1] + ((Math.random() - 0.5) * 5 * 64), 64, 64, "images/placeholder.png", [collectableBehaviour], []);
+        createEntity(Game.cam_pos[0] + ((Math.random() - 0.5) * 5 * 64), Game.cam_pos[1] + ((Math.random() - 0.5) * 5 * 64), 64, 64, "images/apple.png", [collectableBehaviour], []);
     };
 
     espawnTime -= dt;

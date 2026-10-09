@@ -95,7 +95,7 @@ export const enemyBehaviour = {
     findPlayer() {
         let objs = Game.objects;
         let filter = objs.filter((a) => a.player);
-        if (!filter) return;
+        if (filter.length === 0) return;
         let player = filter[0];
         let dx = (this.x || 0) - player.x;
         let dy = (this.y || 0) - player.y;
