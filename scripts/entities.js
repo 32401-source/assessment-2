@@ -81,7 +81,24 @@ export const drawBehaviour = {
         if (this.currentFrame) {
 
         } else {
-            Game.ctx.drawImage(this.image, (this.x - Game.cam_pos[0] + (Game.canvas.width / 2)), (this.y - Game.cam_pos[1] + (Game.canvas.height / 2)), this.width, this.height);
+            Game.ctx.save();
+            const screenCenterX = Game.canvas.width / 2;
+            const screenCenterY = Game.canvas.height / 2;
+            Game.ctx.translate(screenCenterX, screenCenterY);
+            Game.ctx.scale(Game.cam_zoom, Game.cam_zoom);
+
+            const drawX = this.x - Game.cam_pos[0];
+            const drawY = this.y - Game.cam_pos[1];
+            
+             Game.ctx.drawImage(
+                this.image, 
+                drawX, 
+                drawY, 
+                this.width, 
+                this.height
+            );
+            
+            Game.ctx.restore();
         };
     },
 };
@@ -234,8 +251,16 @@ export const playableBehaviour = {
     speed: 1.5,
     player: true,
     moveStyle: "basic",
+    trail: [],
+    blockCount: 0,
+    dist: 0,
+    trailSpacing: 16,
 
     move(dt) {
+        while (Game.score > this.blockCount) {
+            createEntity(this.x, this.y, 64, 64, "images/snake.png", [playerBlocks], [["head", this], ["id", this.blockCount]]);
+            this.blockCount += 1;
+        };
         if (this.moveStyle === "basic") {
             if (Game.keys["W"] === true) {
                 this.vy += (this.speed * 60 * dt);
@@ -265,7 +290,33 @@ export const playableBehaviour = {
 
         Game.cam_pos[0] += (this.x - Game.cam_pos[0]) / 4;
         Game.cam_pos[1] += (this.y - Game.cam_pos[1]) / 4;
+        this.dist += Math.hypot(this.vx, this.vy);
+        this.trail.push([this.x, this.y, this.dist]);
+        let cap = (this.blockCount + 2) * Math.ceil(64 / this.speed);
+        while (this.trail.length > cap) this.trail.shift();
     },
+};
+
+export const playerBlocks = {
+    head: null,
+    id: 0,
+    move() {
+        if (!this.head) return;
+        let target = this.head.dist - (64 * (this.id + 1));
+        let t = this.head.trail;
+        if (t.length === 0 || target <= t[0][2]) {
+            this.x = t[0][0]; this.y = t[0][1];
+            return;
+        };
+        for (let i = t.length - 1; i > 0; i--) {
+            if (t[i - 1][2] <= target && target <= t[i][2]) {
+                let f = (target - t[i - 1][2]) / (t[i][2] - t[i][2 - 1]);
+                this.x = t[i - 1][0] + (t[i][0] - t[i - 1][0]) * f;
+                this.y = t[i - 1][1] + (t[i][1] - t[i - 1][1]) * f;
+                return;
+            };
+        };
+    }
 };
 
 export const rayBehaviour = {
@@ -278,17 +329,12 @@ export const rayBehaviour = {
         let result = null;
         let hit = null;
 
-        let rl = (rayLength === Infinity ? 300 :  rayLength)
+        let rl = (rayLength === Infinity ? 300 : rayLength)
         let lowestDistance = rayLength;
         let centre = [this.x + (this.width / 2), this.y + (this.height / 2)];
-        
+
         let ox = this.x + (this.width / 2) - Game.cam_pos[0] + (Game.canvas.width / 2);
         let oy = this.y + (this.height / 2) - Game.cam_pos[1] + (Game.canvas.height / 2);
-        Game.ctx.strokeStyle = "red";
-        Game.ctx.beginPath();
-        Game.ctx.moveTo(ox, oy);
-        Game.ctx.lineTo(ox + dirX * rl, oy + dirY * rl);
-        Game.ctx.stroke();
 
         for (const obj of Game.objects) {
             if (obj === this) continue;

@@ -15,8 +15,6 @@ const levels = [
     {
         start: [0, 0],
         entities: [
-            {x: 0, y: 1, width: 5, height: 1, image: "images/placeholder.png", behaviours: [], attributes: [["solid", true]]},
-            {x: -1, y: -2, width: 1, height: 4, image: "images/placeholder.png", behaviours: [], attributes: [["solid", true]]},
             {x: -2, y: 0, width: 1, height: 1, image: "images/placeholder.png", behaviours: [physicsBehaviour, enemyBehaviour, rayBehaviour], attributes: [["solid", true], ["physics", true], ["pathfinding", true]]},
             {x: 5, y: 0, width: 1, height: 1, image: "images/apple.png", behaviours: [physicsBehaviour, collectableBehaviour], attributes: []},
         ],
@@ -29,7 +27,7 @@ function loadLevel(lvl) {
         createEntity(e.x * 64, e.y * 64, e.width * 64, e.height * 64, e.image, e.behaviours, e.attributes);
     };
 
-    createEntity(level.start[0], level.start[1], 64, 64, "images/snake.png", [playableBehaviour], [["physics", true], ["solid", true], ["moveStyle", "constant"], ["friction", false], ["speed", 5]]);
+    createEntity(level.start[0], level.start[1], 64, 64, "images/snake.png", [playableBehaviour], [["physics", true], ["solid", true], ["moveStyle", "constant"], ["friction", false], ["speed", 4]]);
 };
 
 loadLevel(0);
@@ -81,6 +79,11 @@ function loop() {
     for (const obj of Game.objects) {
         if (obj.update) obj.update(dt);
     };
+
+    const targetZoom = 1 / (1 + Game.score * 0.05); 
+    const easingRate = 0.05; 
+    Game.cam_zoom += (targetZoom - Game.cam_zoom) * easingRate;
+    Game.cam_zoom = Math.max(0.1, Game.cam_zoom);
 
     cspawnTime -= dt;
     if (cspawnTime <= 0) {

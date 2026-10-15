@@ -4,6 +4,7 @@ export const Game = {
     keys: {},
     objects: [],
     cam_pos: [0, 0],
+    cam_zoom: 1,
     friction: 0.9,
     score: 0,
     lives: 3,
