@@ -287,9 +287,7 @@ export const playableBehaviour = {
                 this.vy = (iy / mag) * this.speed;
             };
         };
-
-        Game.cam_pos[0] += (this.x - Game.cam_pos[0]) / 4;
-        Game.cam_pos[1] += (this.y - Game.cam_pos[1]) / 4;
+        
         this.dist += Math.hypot(this.vx, this.vy);
         this.trail.push([this.x, this.y, this.dist]);
         let cap = (this.blockCount + 2) * Math.ceil(64 / this.speed);
@@ -310,7 +308,7 @@ export const playerBlocks = {
         };
         for (let i = t.length - 1; i > 0; i--) {
             if (t[i - 1][2] <= target && target <= t[i][2]) {
-                let f = (target - t[i - 1][2]) / (t[i][2] - t[i][2 - 1]);
+                let f = (target - t[i - 1][2]) / (t[i][2] - t[i - 1][2]);
                 this.x = t[i - 1][0] + (t[i][0] - t[i - 1][0]) * f;
                 this.y = t[i - 1][1] + (t[i][1] - t[i - 1][1]) * f;
                 return;
