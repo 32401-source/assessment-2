@@ -89,15 +89,15 @@ export const drawBehaviour = {
 
             const drawX = this.x - Game.cam_pos[0];
             const drawY = this.y - Game.cam_pos[1];
-            
-             Game.ctx.drawImage(
-                this.image, 
-                drawX, 
-                drawY, 
-                this.width, 
+
+            Game.ctx.drawImage(
+                this.image,
+                drawX,
+                drawY,
+                this.width,
                 this.height
             );
-            
+
             Game.ctx.restore();
         };
     },
@@ -105,9 +105,10 @@ export const drawBehaviour = {
 
 export const enemyBehaviour = {
     eplayer: null,
+    isEnemy: true,
     pathfinding: false,
     viewRangeSquared: (7 * 64) * (7 * 64),
-    speed: 0.5,
+    speed: 0.3,
 
     findPlayer() {
         let objs = Game.objects;
@@ -134,7 +135,7 @@ export const enemyBehaviour = {
         let canSee = true;
         if (this.castRay) {
             let ray = this.castRay(-dx, -dy, Infinity, ["eplayer", "collectable",]);
-            canSee = (ray !== null && ray[0] === this.eplayer);
+            canSee = (ray !== null && (ray[0] === this.eplayer));
         };
         if (!canSee) {
             return;
@@ -155,6 +156,8 @@ export const healthBehaviour = {
     iv: 0,
     hasIv: false,
     takeDamage(dmg) {
+        console.log("damage function activated")
+        console.log("iv: " + this.iv);
         if (this.iv <= 0) {
             this.health -= dmg;
             if (this.health <= 0) {
@@ -207,6 +210,17 @@ export const physicsBehaviour = {
 
         for (const obj of gameObjects) {
             if (obj === this) continue;
+
+            if (this.isEnemy) {
+                console.log("eplayering")
+                if (obj.player === true && this.touch(this, obj, 6)) {
+                    this.eplayer.takeDamage(1);
+                } else if (obj.head === this.eplayer && this.touch(this, obj, 6)) {
+                    this.delete();
+                    return;
+                };
+            };
+
             if (!obj.solid && !obj.collectable) continue;
             if (!this.collisionHelper(this, obj)) continue;
 
@@ -258,7 +272,7 @@ export const playableBehaviour = {
 
     move(dt) {
         while (Game.score > this.blockCount) {
-            createEntity(this.x, this.y, 64, 64, "images/snake.png", [playerBlocks], [["head", this], ["id", this.blockCount]]);
+            createEntity(this.x, this.y, 64, 64, "images/snake.png", [playerBlocks], [["head", this], ["id", this.blockCount], ["solid", false]]);
             this.blockCount += 1;
         };
         if (this.moveStyle === "basic") {
@@ -287,11 +301,24 @@ export const playableBehaviour = {
                 this.vy = (iy / mag) * this.speed;
             };
         };
-        
+
         this.dist += Math.hypot(this.vx, this.vy);
         this.trail.push([this.x, this.y, this.dist]);
         let cap = (this.blockCount + 2) * Math.ceil(64 / this.speed);
         while (this.trail.length > cap) this.trail.shift();
+        this.checkSelfCollision();
+    },
+
+    checkSelfCollision() {
+        for (const obj of Game.objects) {
+            if (obj === this || obj.head !== this) {
+                continue;
+            };
+            if (this.collisionHelper(this, obj) && this.takeDamage) {
+                this.takeDamage(1);
+                return;
+            };
+        }
     },
 };
 
