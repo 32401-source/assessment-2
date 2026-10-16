@@ -271,7 +271,8 @@ export const playableBehaviour = {
 
     move(dt) {
         while (Game.score > this.blockCount) {
-            createEntity(this.x, this.y, 64, 64, "images/snake.png", [playerBlocks], [["head", this], ["id", this.blockCount], ["solid", false]]);
+            let p = this.trail[0] || [this.x, this.y];
+            createEntity(p[0], p[1], 64, 64, "images/snake.png", [playerBlocks], [["head", this], ["id", this.blockCount], ["solid", false]]);
             this.blockCount += 1;
         };
         if (this.moveStyle === "basic") {
@@ -289,10 +290,10 @@ export const playableBehaviour = {
             let ix = 0;
             let iy = 0;
 
-            if (Game.keys["W"] && (this.vy !== -1)) iy += 1;
-            if (Game.keys["S"] && (this.vy !== 1)) iy -= 1;
-            if (Game.keys["D"] && (this.vx !== -1)) ix += 1;
-            if (Game.keys["A"] && (this.vx !== 1)) ix -= 1;
+            if (Game.keys["W"] && !(this.vy < 0)) iy += 1;
+            if (Game.keys["S"] && !(this.vy > 0)) iy -= 1;
+            if (Game.keys["D"] && !(this.vx < 0)) ix += 1;
+            if (Game.keys["A"] && !(this.vx > 0)) ix -= 1;
 
             let mag = Math.hypot(ix, iy);
             if (mag > 0) {

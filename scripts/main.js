@@ -26,7 +26,7 @@ function loadLevel(lvl) {
         createEntity(e.x * 64, e.y * 64, e.width * 64, e.height * 64, e.image, e.behaviours, e.attributes);
     };
 
-    createEntity(level.start[0], level.start[1], 64, 64, "images/snake.png", [playableBehaviour, healthBehaviour], [["physics", true], ["hasIv", true], ["solid", true], ["moveStyle", "constant"], ["friction", false], ["speed", 4]]);
+    createEntity(level.start[0], level.start[1], 64, 64, "images/snake.png", [playableBehaviour, healthBehaviour], [["physics", true], ["hasIv", true], ["solid", true], ["moveStyle", "constant"], ["friction", false], ["speed", 8]]);
 };
 
 loadLevel(0);
@@ -56,30 +56,24 @@ function drawBackground() {
     let th = bgs[0].naturalHeight;
     if (!tw) return;
 
-    let left = (Game.cam_pos[0] - (Game.canvas.width / 2));
-    let top = Game.cam_pos[1] - (Game.canvas.height / 2);
+    let zoom = Game.cam_zoom;
+    let left = Game.cam_pos[0] - (Game.canvas.width / (2 * zoom));
+    let top = Game.cam_pos[1] - (Game.canvas.height / (2 * zoom));
     let i0 = Math.floor(left / tw);
     let j0 = Math.floor(top / th);
-    let cols = Math.ceil(Game.canvas.width / tw) + 1;
-    let rows = Math.ceil(Game.canvas.height / th) + 1;
+    let cols = Math.ceil(Game.canvas.width / (tw * zoom)) + 1;
+    let rows = Math.ceil(Game.canvas.height / (th * zoom)) + 1;
 
     for (let i = i0; i < i0 + cols; i++) {
         for (let j = j0; j < j0 + rows; j++) {
-            let sx = i * tw - left;
-            let sy = j * th - top;
             let img = bgs[absMod(i, 2) + 2 * absMod(j, 2)];
             Game.ctx.save();
-            const screenCenterX = Game.canvas.width / 2;
-            const screenCenterY = Game.canvas.height / 2;
-            const drawX = sx - Game.cam_pos[0];
-            const drawY = sy - Game.cam_pos[1];
-            Game.ctx.translate(screenCenterX, screenCenterY);
-            Game.ctx.scale(Game.cam_zoom, Game.cam_zoom);
-            Game.ctx.drawImage(img, drawX, drawY);
+            Game.ctx.translate(Game.canvas.width / 2, Game.canvas.height / 2);
+            Game.ctx.scale(zoom, zoom);
+            Game.ctx.drawImage(img, i * tw - Game.cam_pos[0], j * th - Game.cam_pos[1]);
             Game.ctx.restore();
         };
     };
-    
 };
 
 let cspawnTime = 6;
@@ -87,6 +81,40 @@ let espawnTime = 10;
 
 const easingRate = 0.05;
 const cameraSmoothSpeed = 0.08;
+
+const appleData = ["images/apple.png", [collectableBehaviour], []];
+const enemyData = ["images/placeholder.png", [physicsBehaviour, enemyBehaviour, rayBehaviour], [["solid", true], ["physics", true], ["pathfinding", true]]];
+
+function spawnEntityAroundPlayer(player, entity) {
+    let vx = player.vx;
+    let vy = player.vy;
+    let zoom = Game.cam_zoom;
+    let minDist = (Game.canvas.width / zoom) / 2 + 128;
+    let spawnDist = minDist + (Math.random() * 256);
+
+    let spawnX = player.x;
+    let spawnY = player.y;
+
+    let isMovingX = Math.abs(vx) > 0.01;
+    let isMovingY = Math.abs(vy) > 0.01;
+
+    if (isMovingX && isMovingY) {
+        spawnX += vx > 0 ? spawnDist : -spawnDist;
+        spawnY += vy > 0 ? -spawnDist : spawnDist;
+    } else if (isMovingX) {
+        spawnX += vx > 0 ? spawnDist : -spawnDist;
+        spawnY += (Math.random() - 0.5) * 400;
+    } else if (isMovingY) {
+        spawnY += vy > 0 ? -spawnDist : spawnDist;
+        spawnX += (Math.random() - 0.5) * 400;
+    } else {
+        let angle = Math.random() * Math.PI * 2;
+        spawnX += Math.cos(angle) * spawnDist;
+        spawnY -= Math.sin(angle) * spawnDist;
+    };
+
+    createEntity(spawnX, spawnY, 64, 64, entity[0], entity[1], entity[2]);
+};
 
 function loop() {
     requestAnimationFrame(loop);
@@ -111,22 +139,24 @@ function loop() {
     if (sn) {
         Game.cam_pos[0] += (sn.x - Game.cam_pos[0]) * cameraSmoothSpeed;
         Game.cam_pos[1] += (sn.y - Game.cam_pos[1]) * cameraSmoothSpeed;
-        for (let i=1; i<=sn.health; i++) {
+        for (let i = 0; i < sn.health; i++) {
             Game.ctx.drawImage(hearts[i], i * 80, 20);
+        };
+
+        cspawnTime -= dt;
+        if (cspawnTime <= 0) {
+            cspawnTime = 6;
+            spawnEntityAroundPlayer(sn, appleData);
+        };
+
+        espawnTime -= dt;
+        if (espawnTime <= 0) {
+            espawnTime = 8;
+            spawnEntityAroundPlayer(sn, enemyData);
         };
     };
 
-    cspawnTime -= dt;
-    if (cspawnTime <= 0) {
-        cspawnTime = 6;
-        createEntity(Game.cam_pos[0] + ((Math.random() - 0.5) * 15 * 64), Game.cam_pos[1] + ((Math.random() - 0.5) * 5 * 64), 64, 64, "images/apple.png", [collectableBehaviour], []);
-    };
 
-    espawnTime -= dt;
-    if (espawnTime <= 0) {
-        espawnTime = 8;
-        createEntity(Game.cam_pos[0] + ((Math.random() - 0.5) * 15 * 64), Game.cam_pos[1] + ((Math.random() - 0.5) * 5 * 64), 64, 64, "images/placeholder.png", [physicsBehaviour, enemyBehaviour, rayBehaviour], [["solid", true], ["physics", true], ["pathfinding", true]])
-    };
 
     lt = ct;
 };
