@@ -15,7 +15,6 @@ const levels = [
     {
         start: [0, 0],
         entities: [
-            { x: -2, y: 0, width: 1, height: 1, image: "images/placeholder.png", behaviours: [physicsBehaviour, enemyBehaviour, rayBehaviour], attributes: [["solid", true], ["physics", true], ["pathfinding", true]] },
             { x: 5, y: 0, width: 1, height: 1, image: "images/apple.png", behaviours: [physicsBehaviour, collectableBehaviour], attributes: [] },
         ],
     },
@@ -112,19 +111,21 @@ function loop() {
     if (sn) {
         Game.cam_pos[0] += (sn.x - Game.cam_pos[0]) * cameraSmoothSpeed;
         Game.cam_pos[1] += (sn.y - Game.cam_pos[1]) * cameraSmoothSpeed;
-        
+        for (let i=1; i<=sn.health; i++) {
+            Game.ctx.drawImage(hearts[i], i * 80, 20);
+        };
     };
 
     cspawnTime -= dt;
     if (cspawnTime <= 0) {
         cspawnTime = 6;
-        createEntity(Game.cam_pos[0] + ((Math.random() - 0.5) * 5 * 64), Game.cam_pos[1] + ((Math.random() - 0.5) * 5 * 64), 64, 64, "images/apple.png", [collectableBehaviour], []);
+        createEntity(Game.cam_pos[0] + ((Math.random() - 0.5) * 15 * 64), Game.cam_pos[1] + ((Math.random() - 0.5) * 5 * 64), 64, 64, "images/apple.png", [collectableBehaviour], []);
     };
 
     espawnTime -= dt;
     if (espawnTime <= 0) {
         espawnTime = 8;
-        createEntity(Game.cam_pos[0] + ((Math.random() - 0.5) * 5 * 64), Game.cam_pos[1] + ((Math.random() - 0.5) * 5 * 64), 64, 64, "images/placeholder.png", [physicsBehaviour, enemyBehaviour, rayBehaviour], [["solid", true], ["physics", true], ["pathfinding", true]])
+        createEntity(Game.cam_pos[0] + ((Math.random() - 0.5) * 15 * 64), Game.cam_pos[1] + ((Math.random() - 0.5) * 5 * 64), 64, 64, "images/placeholder.png", [physicsBehaviour, enemyBehaviour, rayBehaviour], [["solid", true], ["physics", true], ["pathfinding", true]])
     };
 
     lt = ct;

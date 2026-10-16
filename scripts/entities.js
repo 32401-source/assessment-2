@@ -108,7 +108,7 @@ export const enemyBehaviour = {
     isEnemy: true,
     pathfinding: false,
     viewRangeSquared: (7 * 64) * (7 * 64),
-    speed: 0.3,
+    speed: 0.2,
 
     findPlayer() {
         let objs = Game.objects;
@@ -212,10 +212,9 @@ export const physicsBehaviour = {
             if (obj === this) continue;
 
             if (this.isEnemy) {
-                console.log("eplayering")
-                if (obj.player === true && this.touch(this, obj, 6)) {
+                if (obj.player === true && this.collisionHelper(this, obj)) {
                     this.eplayer.takeDamage(1);
-                } else if (obj.head === this.eplayer && this.touch(this, obj, 6)) {
+                } else if (obj.head && obj.head === this.eplayer && this.collisionHelper(this, obj)) {
                     this.delete();
                     return;
                 };
@@ -311,7 +310,7 @@ export const playableBehaviour = {
 
     checkSelfCollision() {
         for (const obj of Game.objects) {
-            if (obj === this || obj.head !== this) {
+            if (obj === this || obj.head !== this || (obj.id !== undefined && obj.id < 3)) {
                 continue;
             };
             if (this.collisionHelper(this, obj) && this.takeDamage) {
