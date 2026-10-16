@@ -3,8 +3,56 @@ body {
     background-color: rgb(17, 17, 26);
     color: white;
     text-transform: uppercase;
+    transition: 500ms all;
 }
 
 canvas {
     background-color: aliceblue;
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#sidebar {
+    height: 720px;
+    background-color: rgb(139, 153, 158);
+    padding: 10px;
+    margin: 10px;
+    transition: 500ms all;
+}
+
+#lm-button {
+    width: 80px;
+    height: 50px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    padding: 5px;
+    transition: 500ms all;
+}
+
+#lm-button:hover {
+    width: 88px;
+    height: 55px;
+    box-shadow: 5px 5px 3px lightblue;
+}
+
+.dark-mode {
+    #sidebar {
+        background-color: rgb(45, 45, 51);
+    }
+    body {
+        background-color: rgb(17, 17, 26);
+    }
+}
+
+.light-mode {
+    #sidebar {
+        background-color: rgb(139, 153, 158);
+    }
+    body {
+        background-color: rgb(206, 206, 250);
+    }
 }

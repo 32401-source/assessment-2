@@ -16,6 +16,7 @@ const levels = [
         start: [0, 0],
         entities: [
             { x: 5, y: 0, width: 1, height: 1, image: "images/apple.png", behaviours: [physicsBehaviour, collectableBehaviour], attributes: [] },
+            { x: 3, y: 3, width: 1, height: 1, image: "images/apple.png", behaviours: [physicsBehaviour, collectableBehaviour], attributes: [] },
         ],
     },
 ];
@@ -76,21 +77,39 @@ function drawBackground() {
     };
 };
 
-let cspawnTime = 6;
-let espawnTime = 10;
+let cspawnTime = 4;
+let espawnTime = 6;
 
 const easingRate = 0.05;
 const cameraSmoothSpeed = 0.08;
 
 const appleData = ["images/apple.png", [collectableBehaviour], []];
-const enemyData = ["images/placeholder.png", [physicsBehaviour, enemyBehaviour, rayBehaviour], [["solid", true], ["physics", true], ["pathfinding", true]]];
+const enemyData = ["images/enemy.png", [physicsBehaviour, enemyBehaviour, rayBehaviour], [["solid", true], ["physics", true], ["pathfinding", true]]];
+
+const lmButton = document.getElementById("lm-button");
+let mode = "dark";
+
+lmButton.addEventListener("click", (ev) => {
+    console.log("clicked");
+    for (const element of document.children) {
+        if (mode === "dark") {
+            element.classList.add("light-mode");
+            element.classList.remove("dark-mode");
+            mode = "light";
+        } else {
+            element.classList.add("dark-mode");
+            element.classList.remove("light-mode");
+            mode = "dark";
+        };
+    };
+});
 
 function spawnEntityAroundPlayer(player, entity) {
     let vx = player.vx;
     let vy = player.vy;
     let zoom = Game.cam_zoom;
     let minDist = (Game.canvas.width / zoom) / 2 + 128;
-    let spawnDist = minDist + (Math.random() * 256);
+    let spawnDist = minDist + (Math.random() * (64 * 3));
 
     let spawnX = player.x;
     let spawnY = player.y;
@@ -103,10 +122,10 @@ function spawnEntityAroundPlayer(player, entity) {
         spawnY += vy > 0 ? -spawnDist : spawnDist;
     } else if (isMovingX) {
         spawnX += vx > 0 ? spawnDist : -spawnDist;
-        spawnY += (Math.random() - 0.5) * 400;
+        spawnY += (Math.random() - 0.5) * 256;
     } else if (isMovingY) {
         spawnY += vy > 0 ? -spawnDist : spawnDist;
-        spawnX += (Math.random() - 0.5) * 400;
+        spawnX += (Math.random() - 0.5) * 256;
     } else {
         let angle = Math.random() * Math.PI * 2;
         spawnX += Math.cos(angle) * spawnDist;
@@ -115,6 +134,11 @@ function spawnEntityAroundPlayer(player, entity) {
 
     createEntity(spawnX, spawnY, 64, 64, entity[0], entity[1], entity[2]);
 };
+
+Game.ctx.font = "bold 36px Arial";
+Game.ctx.fillStyle = "#ccdce7";
+Game.ctx.textAlign = "center";
+Game.ctx.textBaseline = "middle";
 
 function loop() {
     requestAnimationFrame(loop);
@@ -131,7 +155,7 @@ function loop() {
 
     let sn = Game.objects.find(a => a.player);
 
-    const targetZoom = 1 / (1 + Game.score * 0.05);
+    const targetZoom = 1 / (1 + Game.score * 0.08);
 
     Game.cam_zoom += (targetZoom - Game.cam_zoom) * easingRate;
     Game.cam_zoom = Math.max(0.1, Game.cam_zoom);
@@ -145,18 +169,22 @@ function loop() {
 
         cspawnTime -= dt;
         if (cspawnTime <= 0) {
-            cspawnTime = 6;
+            cspawnTime = 4;
             spawnEntityAroundPlayer(sn, appleData);
         };
 
         espawnTime -= dt;
         if (espawnTime <= 0) {
-            espawnTime = 8;
+            espawnTime = 6;
             spawnEntityAroundPlayer(sn, enemyData);
         };
     };
 
-
+    if (sn) {
+        Game.ctx.fillText(Game.score, Game.canvas.width / 2, 64);
+    } else {
+        Game.ctx.fillText("Game over! Your score was " + Game.score + "! Try again. (refresh the tab)", Game.canvas.width / 2, 64);
+    };
 
     lt = ct;
 };

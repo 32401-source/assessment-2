@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,8 +8,15 @@
     <script src="scripts/main.js" type="module"></script>
     <title>Game</title>
 </head>
+
 <body>
     <h1>SNAKE GAME</h1>
-    <canvas id="canvas" width="1080" height="720"></canvas>
+    <div class="container">
+        <canvas id="canvas" class="dark-mode" width="1080" height="720"></canvas>
+        <div id="sidebar" class="dark-mode">
+            <button id="lm-button" class="dark-mode">Toggle Light/Dark Mode</button>
+        </div>
+    </div>
 </body>
-</html> 
+
+</html>
